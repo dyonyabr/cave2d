@@ -17,7 +17,8 @@ function make_mesh(cx, cy)
       local bdata = world.map[index]
       local b = bdata[1]
       local is_bg = bdata[2]
-      local light = bdata[3] / max_light
+      local light = (bdata[3]) / max_light
+      -- local light = 1
       if b ~= 0 then
         uvx, uvy = (b - 1) % 16, math.floor((b - 1) / 16)
         for t = 1, 2 do
@@ -27,11 +28,37 @@ function make_mesh(cx, cy)
           local gx, gy = x * 8, y * 8
           for v = 1, 3 do
             local i = cell[t + iof][4][v]
-            local c1, c2, c3 = get_tile_colors(x, y, ao[i], is_bg, t == 2)
+            local col = get_tile_colors(x, y, ao[i], is_bg, t == 2)
+            local col_m
+            local n1, n2, n3 = 0, 0, 0
+            if i == 1 then
+              local nb1, nb2, nb3 = get_bdata(x - 1, y), get_bdata(x, y - 1), get_bdata(x - 1, y - 1)
+              if nb1 then n1 = nb1[3] end
+              if nb2 then n2 = nb2[3] end
+              if nb3 then n3 = nb3[3] end
+            elseif i == 2 then
+              local nb1, nb2, nb3 = get_bdata(x + 1, y), get_bdata(x, y - 1), get_bdata(x + 1, y - 1)
+              if nb1 then n1 = nb1[3] end
+              if nb2 then n2 = nb2[3] end
+              if nb3 then n3 = nb3[3] end
+            elseif i == 3 then
+              local nb1, nb2, nb3 = get_bdata(x + 1, y), get_bdata(x, y + 1), get_bdata(x + 1, y + 1)
+              if nb1 then n1 = nb1[3] end
+              if nb2 then n2 = nb2[3] end
+              if nb3 then n3 = nb3[3] end
+            elseif i == 4 then
+              local nb1, nb2, nb3 = get_bdata(x - 1, y), get_bdata(x, y + 1), get_bdata(x - 1, y + 1)
+              if nb1 then n1 = nb1[3] end
+              if nb2 then n2 = nb2[3] end
+              if nb3 then n3 = nb3[3] end
+            end
+            n1, n2, n3 = n1 / max_light, n2 / max_light, n3 / max_light
+            col_m = (n1 + n2 + n3 + light) / 4
+            col = col * col_m
             verts[#verts + 1] = {
               cell[t + iof][v][1] + gx, cell[t + iof][v][2] + gy,
               (uvx + cell[t + iof][v][1] / 8) / 16, (uvy + cell[t + iof][v][2] / 8) / 16,
-              c1 * light, c2 * light, c3 * light, 1
+              col, col, col, 1
             }
           end
         end
@@ -44,19 +71,13 @@ function make_mesh(cx, cy)
 end
 
 function get_tile_colors(x, y, ao, is_bg, shade)
-  local c1, c2, c3
   local col
   if is_bg then
-    col = .5
-    c1 = col - col * ao * ao_dencity
-    c2 = col - col * ao * ao_dencity
-    c3 = col - col * ao * ao_dencity
+    col = .5 - .5 * ao * ao_dencity
   else
-    c1 = ao * ao_dencity * 2
-    c2 = ao * ao_dencity * 2
-    c3 = ao * ao_dencity * 2
+    col = ao * ao_dencity * 4 --* .5 + .5
   end
-  return c1, c2, c3
+  return col
 end
 
 function is_ao(x, y, not_bg)

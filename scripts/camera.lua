@@ -8,6 +8,8 @@ camera = {
   chunk_pos = { x = chunk_count / 2, y = chunk_count / 2 },
 }
 
+local speed = 35
+
 local function set_map_pos(x, y)
   if camera.map_pos.x ~= x or camera.map_pos.y ~= y then
     camera.map_pos = { x = x, y = y }
@@ -71,7 +73,7 @@ function camera_update(dt)
     dir.x, dir.y = dir.x / dlen, dir.y / dlen
   end
 
-  camera.pos.x, camera.pos.y = camera.pos.x + dir.x * dt * 100, camera.pos.y + dir.y * dt * 100
+  camera.pos.x, camera.pos.y = camera.pos.x + dir.x * dt * speed, camera.pos.y + dir.y * dt * speed
 
   camera.draw_pos.x = lerp(camera.draw_pos.x, camera.pos.x - game_x / 2, dt * 20)
   camera.draw_pos.y = lerp(camera.draw_pos.y, camera.pos.y - game_y / 2, dt * 20)

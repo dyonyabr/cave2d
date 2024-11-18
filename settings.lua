@@ -1,15 +1,15 @@
 scale = love.graphics.getHeight() / 128
 game_x, game_y = love.graphics.getWidth() / scale, love.graphics.getHeight() / scale
 
-chunk_count = 16
-chunk_s = 16
+chunk_count = 32
+chunk_s = 8
 world_s = chunk_count * chunk_s
 max_light = 8
 
 ao_dencity = .3
 
 seed = love.math.random(0, 4096)
-frq = .2
+frq = .025
 bg_frq = .2
 
 dirs = { { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 } }
