@@ -5,6 +5,7 @@ require "settings"
 require "scripts.world_data"
 require "scripts.world_mesh"
 require "scripts.generator"
+require "scripts.player"
 require "scripts.camera"
 require "scripts.light"
 
@@ -15,10 +16,13 @@ function love.load()
       set_mesh(cx, cy, make_mesh(cx, cy))
     end
   end
+  player:init_pos()
+  camera:fast_center()
 end
 
 function love.update(dt)
-  camera_update(dt)
+  camera:update(dt)
+  player_update(dt)
 end
 
 function love.resize()
@@ -27,9 +31,10 @@ end
 
 function love.draw()
   love.graphics.scale(scale)
-  love.graphics.translate(-camera.draw_pos.x, -camera.draw_pos.y)
+  love.graphics.translate(-camera.pos.x, -camera.pos.y)
 
   draw_world()
+  player:draw()
 
   love.graphics.origin()
   love.graphics.print(love.timer.getFPS(), 10, 10)
