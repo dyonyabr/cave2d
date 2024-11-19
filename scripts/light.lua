@@ -1,13 +1,11 @@
-local light_shader = love.graphics.newShader("assets/shaders/light.glsl")
-
 local function check_wall(x, y, dir)
   local nx, ny = x + dir[1], y + dir[2]
   local nbdata = get_bdata(nx, ny)
   if nbdata then return nbdata[2] else return false end
 end
 
-function calc_light(px, py, cx, cy)
-  local queue = { { x = px, y = py, light = max_light } }
+function calc_light(px, py, max)
+  local queue = { { x = px, y = py, light = max } }
 
   while #queue > 0 do
     local current = table.remove(queue, 1)
@@ -43,19 +41,31 @@ function calc_light(px, py, cx, cy)
   end
 end
 
-function calc_player_light()
+function calc_all_light()
   local cx, cy = player.chunk_pos.x, player.chunk_pos.y
 
-  local start_x = (cx - 1) * chunk_s
-  local start_y = (cy - 1) * chunk_s
-  for x = start_x, start_x + chunk_s * 3 - 1 do
-    for y = start_y, start_y + chunk_s * 3 - 1 do
+  local sources = {}
+  local start_x = (cx - 2) * chunk_s
+  local start_y = (cy - 2) * chunk_s
+  local end_x = start_x + 5 * chunk_s - 1
+  local end_y = start_y + 5 * chunk_s - 1
+  for x = start_x, end_x do
+    for y = start_y, end_y do
       local bdata = get_bdata(x, y)
-      if bdata then bdata[3] = 0 end
+      if bdata then
+        local b = bdata[1]
+        local block = blocks[b]
+        local prop = block.prop
+        if table_has(prop, "light") then sources[#sources + 1] = { x = x, y = y, light_level = prop.light_level } end
+        bdata[3] = 0
+      end
     end
   end
 
-  calc_light(player.map_pos.y, player.map_pos.y)
+  calc_light(player.map_pos.x, player.map_pos.y, 4)
+  for i = 1, #sources do
+    calc_light(sources[i].x, sources[i].y, sources[i].light_level)
+  end
   local c, l, r, d, u, lu, ru, rd, ld =
       get_mesh(cx, cy),
       get_mesh(cx - 1, cy),

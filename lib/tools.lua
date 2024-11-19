@@ -17,6 +17,15 @@ function clamp(val, lower, upper)
   return math.max(lower, math.min(upper, val))
 end
 
+function table_has(tbl, element)
+  for _, value in pairs(tbl) do
+    if value == element then
+      return true
+    end
+  end
+  return false
+end
+
 function pos2i(x, y, size)
   return x + y * size
 end

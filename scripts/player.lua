@@ -7,7 +7,6 @@ player = {
   speed = 1,
 }
 
-
 function player:init_pos()
   player.pos = vec(world_s / 2 * 8, world_s / 2 * 8)
   player:set_chunk_pos(chunk_count / 2, chunk_count / 2)
@@ -17,37 +16,8 @@ end
 function player:set_map_pos(x, y)
   if player.map_pos.x ~= x or player.map_pos.y ~= y then
     player.map_pos = { x = x, y = y }
-    local cx, cy = player.chunk_pos.x, player.chunk_pos.y
-
-    local start_x = (cx - 1) * chunk_s
-    local start_y = (cy - 1) * chunk_s
-    for x = start_x, start_x + chunk_s * 3 - 1 do
-      for y = start_y, start_y + chunk_s * 3 - 1 do
-        local bdata = get_bdata(x, y)
-        if bdata then bdata[3] = 0 end
-      end
-    end
-
-    calc_light(x, y)
-    local c, l, r, d, u, lu, ru, rd, ld =
-        get_mesh(cx, cy),
-        get_mesh(cx - 1, cy),
-        get_mesh(cx + 1, cy),
-        get_mesh(cx, cy + 1),
-        get_mesh(cx, cy - 1),
-        get_mesh(cx - 1, cy - 1),
-        get_mesh(cx + 1, cy - 1),
-        get_mesh(cx + 1, cy + 1),
-        get_mesh(cx - 1, cy + 1)
-    if c then set_mesh(cx, cy, make_mesh(cx, cy)) end
-    if l then set_mesh(cx - 1, cy, make_mesh(cx - 1, cy)) end
-    if r then set_mesh(cx + 1, cy, make_mesh(cx + 1, cy)) end
-    if d then set_mesh(cx, cy + 1, make_mesh(cx, cy + 1)) end
-    if u then set_mesh(cx, cy - 1, make_mesh(cx, cy - 1)) end
-    if lu then set_mesh(cx - 1, cy - 1, make_mesh(cx - 1, cy - 1)) end
-    if ru then set_mesh(cx + 1, cy - 1, make_mesh(cx + 1, cy - 1)) end
-    if rd then set_mesh(cx + 1, cy + 1, make_mesh(cx + 1, cy + 1)) end
-    if ld then set_mesh(cx - 1, cy + 1, make_mesh(cx - 1, cy + 1)) end
+    cx, cy = player.chunk_pos.x, player.chunk_pos.y
+    calc_all_light()
   end
 end
 
@@ -80,4 +50,25 @@ end
 function player:draw()
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.circle("fill", player.pos.x, player.pos.y, 3)
+end
+
+function break_block()
+  x, y = player.map_pos.x, player.map_pos.y
+  local bdata = get_bdata(x, y)
+  if not bdata[2] then
+    set_bdata(x, y, 2, true, true)
+  end
+end
+
+function set_block()
+  x, y = player.map_pos.x, player.map_pos.y
+  local bdata = get_bdata(x, y)
+  if bdata[2] then
+    set_bdata(x, y, 5, false, true)
+  end
+end
+
+function player:input(k)
+  if k == "return" then break_block() end
+  if k == "rshift" then set_block() end
 end

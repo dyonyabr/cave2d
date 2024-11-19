@@ -5,8 +5,11 @@ function get_bdata(x, y)
   return world.map[pos2i(x, y, world_s)]
 end
 
-function set_bdata(x, y, b, is_bg)
+function set_bdata(x, y, b, is_bg, update)
   world.map[pos2i(x, y, world_s)] = { b, is_bg, 0 }
+  if update then
+    calc_all_light()
+  end
 end
 
 function get_mesh(cx, cy)

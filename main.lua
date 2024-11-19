@@ -2,6 +2,7 @@ require "lib.tools"
 vec = require "lib.vector"
 
 require "settings"
+require "blocks"
 require "scripts.world_data"
 require "scripts.world_mesh"
 require "scripts.generator"
@@ -18,6 +19,10 @@ function love.load()
   end
   player:init_pos()
   camera:fast_center()
+end
+
+function love.keypressed(k)
+  player:input(k)
 end
 
 function love.update(dt)
